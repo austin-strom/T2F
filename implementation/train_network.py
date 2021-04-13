@@ -9,6 +9,7 @@ import yaml
 import os
 import pickle
 import timeit
+import tensorflow as tf 
 
 from torch.backends import cudnn
 
@@ -20,8 +21,8 @@ th.manual_seed(3)
 
 # Start fast training mode:
 cudnn.benchmark = True
-
-
+logdir = "runs/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+file_writer = tf.summary.create_file_writer(logdir)
 def parse_arguments():
     """
     command line arguments parser
@@ -82,6 +83,11 @@ def create_grid(samples, scale_factor, img_file, real_imgs=False):
 
     # save the images:
     save_image(samples, img_file, nrow=int(np.sqrt(len(samples))))
+
+    samples = np.reshape(samples.cpu().detach().numpy(), (-1, 256,256,3))
+    with file_writer.as_default():
+        tf.summary.image('gan_output_images', samples, step=0)
+    
 
 
 def create_descriptions_file(file, captions, dataset):
