@@ -136,7 +136,10 @@ def train_networks(encoder, ca, c_pro_gan, dataset, epochs,
     # create fixed_input for debugging
     temp_data = dl.get_data_loader(dataset, batch_sizes[start_depth], num_workers=3)
     fixed_captions, fixed_real_images = iter(temp_data).next()
-    fixed_captions.to(device)
+    
+    fixed_real_images = fixed_real_images.to(device)
+    fixed_captions = fixed_captions.to(device)
+   
     fixed_embeddings = encoder(fixed_captions)
     
     fixed_embeddings = (fixed_embeddings).to(device)
@@ -194,7 +197,7 @@ def train_networks(encoder, ca, c_pro_gan, dataset, epochs,
                 images = images.to(device)
 
                 # perform text_work:
-                embeddings = (encoder(captions).to(device)
+                embeddings = encoder(captions).to(device)
                 if encoder_optim is None:
                     # detach the LSTM from backpropagation
                     embeddings = embeddings.detach()
@@ -304,6 +307,7 @@ def main(args):
     :return: None
     """
 
+    print("Using Device:", device)
     from networks.TextEncoder import Encoder
     from networks.ConditionAugmentation import ConditionAugmentor
     from pro_gan_pytorch.PRO_GAN import ConditionalProGAN
